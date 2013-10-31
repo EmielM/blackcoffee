@@ -27,7 +27,11 @@ header = """
 build = (cb) ->
   files = fs.readdirSync 'src'
   files = ('src/' + file for file in files when file.match(/\.(lit)?coffee$/))
-  run ['-c', '-o', 'lib/coffee-script'].concat(files), cb
+  run ['-c', '-o', 'lib/coffee-script'].concat(files), ->
+    exec "echo '#!/usr/bin/env node' > bin/blackcoffee"
+    exec "cat lib/coffee-script/blackcoffee.js >> bin/blackcoffee"
+    exec "chmod a+x bin/blackcoffee"
+    cb() if typeof cb=='function'
 
 # Run a CoffeeScript through our node/coffee interpreter.
 run = (args, cb) ->

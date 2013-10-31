@@ -136,6 +136,14 @@ exports.Base = class Base
     @eachChild (node) -> tree += node.toString idt + TAB
     tree
 
+  # Returns a deep copy of the node, with occurances of the keys of
+  # `replacements` as identifiers recursively replace by the value nodes.
+  # This method is not used by CoffeeScript itself, but can be used by macros.
+  subst: (replacements) ->
+    exports.walk cloneNode(@), (n) ->
+      n.base = cloneNode(tmp) if tmp = replacements[n.base?.value]
+      return
+
   # Passes each child to a function, breaking when the function returns `false`.
   eachChild: (func) ->
     return this unless @children
@@ -2212,3 +2220,57 @@ parseNum = (x) ->
     parseInt x, 16
   else
     parseFloat x
+
+# Compatibility method (IE < 10)
+createObject = Object.create
+if typeof createObject != 'function'
+  createObject = (proto) ->
+    f = ->
+    f.prototype = proto
+    f
+
+# Deep copy a (part of the) AST. Actually, this is just a pretty generic
+# ECMAScript 3 expression cloner. (Browser special cases are not supported.)
+cloneNode = (src) ->
+  return src if typeof src != 'object' || src==null
+  return (cloneNode(x) for x in src) if src instanceof Array
+
+  # It's an object, find the prototype and construct an object with it.
+  ret = createObject (Object.getPrototypeOf?(src) || src.__proto__  || src.constructor.prototype)
+  # And finish by deep copying all own properties.
+  ret[key] = cloneNode(val) for own key,val of src
+  ret
+
+# Recursively calls `visit` for every child of `node`. When `visit` returns 
+# `false`, the node is removed from the tree (or replaced by `undefined` if
+# that is not possible). When a node is returned, it is used to replace the
+# original node, and `visit` is called again for the replacing node.
+exports.walk = walk = (node, visit) ->
+  for name in node.children||[] when child = node[name]
+    if child instanceof Array
+      walkArray child, visit
+    else
+      while (res = visit walk(child,visit)) instanceof exports.Base # replace (and walk it again)
+        res.updateLocationDataIfMissing child.locationData
+        child = node[name] = res
+      if res==false # delete (but some node is required)
+        node[name] = new exports.Undefined()
+        # else keep
+  node
+
+# Helper method for `walk`.
+walkArray = (array, visit) ->
+  i = 0
+  while item = array[i++]
+    if item instanceof Array
+      walkArray item, visit
+    else
+      res = visit walk(item, visit)
+      if res instanceof exports.Base # replace (and walk it again)
+        res.updateLocationDataIfMissing array[--i].locationData
+        array[i] = res
+      else if res==false # delete
+        array.splice --i, 1
+      # else keep
+  return
+
