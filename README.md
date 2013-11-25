@@ -21,11 +21,21 @@ Applications include:
 - and whatever else you can think of doing at compile-time.
 
 
-Installation
-============
+Usage
+=====
 
+Clone the repository:
 ```sh
 git clone https://github.com/paiq/blackcoffee
+```
+
+```sh
+blackcoffee/bin/coffee
+```
+It can be used in the exact same way as the regular CoffeeScript compiler (except that macros are supported, of course). In addition, BlackCoffee comes with its own very simple CLI named `blackcoffee`, which supports multiple source files and command line flags that can be used by macros. Read the 'blackcoffee cli' section for more info.
+
+To install blackcoffee, *replacing your locally installed CoffeeScript*:
+```sh
 cd blackcoffee
 sudo bin/cake install
 ```
@@ -51,7 +61,7 @@ macro ->
 # So in effect, the file is included.
 
 fileContents = macro ->
-	macro.valToNode require('fs').readFileSync 'file.txt'
+	macro.valToNode ''+macro.require('fs').readFileSync 'file.txt'
 # `macro.valToNode` converts a json-able value to a BlackCoffee node. So
 # `fileContents` will contain whatever is in 'file.txt'. Of course, as we're
 # using `require('fs')` this will not work when compiling in the browser.
@@ -91,7 +101,7 @@ Convert a json-able `value` to a node.
 ```CoffeeScript
 buildInfo = macro -> macro.valToNode
 	time: new Date().getTime()
-	host: require('os').hostname()
+	host: macro.require('os').hostname()
 ```
 
 **macro.csToNode(scriptString)**
@@ -180,12 +190,18 @@ macro delegateArithmetic (func) ->
         if node instanceof macro.Op and (op = operators[node.operator])
             macro.csToNode("(a).#{op}(b)").subst {a: node.first, b: node.second}
 
-# this uses regular javascript operators:
+# Next, we'd have to define the `add/sub/mult` methods for the types that we'll
+# be working with in a `delegateArithmetic` section.
+Array::add = (other) -> 42 # do something smart here instead
+Number::sub = (other) -> -42
+# etc...
+
+# So, now this uses regular javascript operators:
 eq 7, 3+4
 eq "3,45,6", [3,4]+[5,6]
 
 delegateArithmetic ->
-    # this uses the arithmetic methods defined on the prototypes:
+    # And this uses the arithmetic methods defined on the prototypes:
     eq [3,4,5], [1,2,3]+2  
     eq 20, [1,2,3]*[2,3,4]
     eq [1,0,1], [3,2,4]-[2,0,3]
@@ -193,8 +209,8 @@ delegateArithmetic ->
 ```
 
 
-blackcoffee compiler
-====================
+blackcoffee cli
+===============
 
 This version of CoffeeScript comes with the usual `bin/coffee` compiler/runner/repl, adapted to work with macros. You may choose to use the additional `bin/blackcoffee` compiler instead, as it allows for compilation of multiple source files to one target. This is especially useful if you want to prefix each script with a set of common macro definitions.
 
@@ -204,10 +220,17 @@ I think these options are pretty much self evident, except for `-f`, which can b
 
 Example:
 ```sh
-bin/blackcoffee -o test.js -m test.srcMap -f dev test.coffee
+bin/blackcoffee -o test.js -m test.srcMap -f dev macros.coffee test.coffee
+```
+macros.coffee:
+```CoffeeScript
+macro LOG (str) ->
+	macro.codeToNode(->console.log x).subst {x: str} if flags.dev
 ```
 test.coffee:
 ```CoffeeScript
-extraLogging = macro -> macro.valToNode flags.dev
+# We can use macros defined in the other file here. The following will
+# compile to nothing, unless the '-f dev' flag is specified at compile time:
+LOG "Hello developers!"
 ```
 
