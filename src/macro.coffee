@@ -89,9 +89,10 @@ exports.expand = (ast, csToNodes) ->
     "macro.codeToNode": (func) ->
       if func not instanceof nodeTypes.Code or func.params.length
         throw new Error 'macro.codeToNode expects a function (without arguments)'
-      num = utils._codeNodes.length
-      utils._codeNodes.push func.body
-      utils.jsToNode "macro._codeNodes[#{num}]"
+      # we want to do a valToNode on the function body, but as valToNode only
+      # works on jsonable stuff, we'll hack something to the same effect:
+      utils._codeNodes.push func.body.unwrap()
+      utils.jsToNode "macro._codeNodes[#{utils._codeNodes.length-1}]"
   
   # And now we'll start the actual work.
   nodeTypes.walk ast, (n) ->

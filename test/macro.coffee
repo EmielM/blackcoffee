@@ -67,6 +67,11 @@ test "macro subst", ->
   macro IDX (x) -> (macro.codeToNode -> {12345:321}[x]).subst {x}
   eq 321, IDX a
 
+test "subst of parameters", ->
+  macro substXY (f) -> f.subst x: macro.codeToNode -> y
+  func = substXY (x) -> x + y
+  eq 6, func(3)
+
 test "macro contexts", ->
   macro -> @a = 42
   eq 42, macro -> macro.valToNode @a

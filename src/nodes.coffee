@@ -150,9 +150,15 @@ exports.Base = class Base
   # `replacements` as identifiers recursively replace by the value nodes.
   # This method is not used by CoffeeScript itself, but can be used by macros.
   subst: (replacements) ->
-    exports.walk cloneNode(@), (n) ->
-      n.base = cloneNode(tmp) if tmp = replacements[n.base?.value]
+    changeNode = (n) ->
+      if tmp = replacements[n.base?.value]
+        n.base = cloneNode(tmp)
+      else if (tmp = replacements[n.name?.value]) and tmp.base?.value
+        n.name.value = tmp.base.value
       return
+    ast = cloneNode @
+    changeNode ast # walk doesn't fire a callback for the top level
+    exports.walk ast, changeNode
 
   # Passes each child to a function, breaking when the function returns `false`.
   eachChild: (func) ->
