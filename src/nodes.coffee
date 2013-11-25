@@ -79,7 +79,17 @@ exports.Base = class Base
     if jumpNode = @jumps()
       jumpNode.error 'cannot use a pure statement in an expression'
     o.sharedScope = yes
-    Closure.wrap(this).compileNode o
+    func = new Code [], Block.wrap [this]
+    args = []
+    if (argumentsNode = @contains isLiteralArguments) or @contains isLiteralThis
+      args = [new Literal 'this']
+      if argumentsNode
+        meth = 'apply'
+        args.push new Literal 'arguments'
+      else
+        meth = 'call'
+      func = new Value func, [new Access new Literal meth]
+    (new Call func, args).compileNode o
 
   # If the code generation wishes to use the result of a complex expression
   # in multiple places, ensure that the expression is only ever evaluated once,
@@ -251,7 +261,7 @@ exports.Block = class Block extends Base
 
   jumps: (o) ->
     for exp in @expressions
-      return exp if exp.jumps o
+      return jumpNode if jumpNode = exp.jumps o
 
   # A Block node does not return its entire body, rather it
   # ensures that the final expression is returned.
@@ -506,6 +516,10 @@ exports.Value = class Value extends Base
 
   isSplice: ->
     last(@properties) instanceof Slice
+
+  looksStatic: (className) ->
+    @base.value is className and @properties.length and
+      @properties[0].name?.value isnt 'prototype'
 
   # The value can be unwrapped as its inner node, if there are no attached
   # properties.
@@ -856,7 +870,7 @@ exports.Range = class Range extends Base
       cond    = "#{@fromVar} <= #{@toVar}"
       body    = "var #{vars}; #{cond} ? #{i} <#{@equals} #{@toVar} : #{i} >#{@equals} #{@toVar}; #{cond} ? #{i}++ : #{i}--"
     post   = "{ #{result}.push(#{i}); }\n#{idt}return #{result};\n#{o.indent}"
-    hasArgs = (node) -> node?.contains (n) -> n instanceof Literal and n.value is 'arguments' and not n.asKey
+    hasArgs = (node) -> node?.contains isLiteralArguments
     args   = ', arguments' if hasArgs(@from) or hasArgs(@to)
     [@makeCode "(function() {#{pre}\n#{idt}for (#{body})#{post}}).apply(this#{args ? ''})"]
 
@@ -1029,13 +1043,11 @@ exports.Class = class Class extends Base
           if func instanceof Code
             assign = @ctor = func
           else
-            @externalCtor = o.scope.freeVariable 'class'
+            @externalCtor = o.classScope.freeVariable 'class'
             assign = new Assign new Literal(@externalCtor), func
         else
           if assign.variable.this
             func.static = yes
-            if func.bound
-              func.context = name
           else
             assign.variable = new Value(new Literal(name), [(new Access new Literal 'prototype'), new Access base])
             if func instanceof Code and func.bound
@@ -1044,14 +1056,17 @@ exports.Class = class Class extends Base
       assign
     compact exprs
 
-  # Walk the body of the class, looking for prototype properties to be converted.
+  # Walk the body of the class, looking for prototype properties to be converted
+  # and tagging static assignments.
   walkBody: (name, o) ->
     @traverseChildren false, (child) =>
       cont = true
       return false if child instanceof Class
       if child instanceof Block
         for node, i in exps = child.expressions
-          if node instanceof Value and node.isObject(true)
+          if node instanceof Assign and node.variable.looksStatic name
+            node.value.static = yes
+          else if node instanceof Value and node.isObject(true)
             cont = false
             exps[i] = @addProperties node, name, o
         child.expressions = exps = flatten exps
@@ -1086,9 +1101,17 @@ exports.Class = class Class extends Base
   # equivalent syntax tree and compile that, in pieces. You can see the
   # constructor, property assignments, and inheritance getting built out below.
   compileNode: (o) ->
+    if jumpNode = @body.jumps()
+      jumpNode.error 'Class bodies cannot contain pure statements'
+    if argumentsNode = @body.contains isLiteralArguments
+      argumentsNode.error "Class bodies shouldn't reference arguments"
+
     name  = @determineName() or '_Class'
-    name = "_#{name}" if name.reserved
+    name  = "_#{name}" if name.reserved
     lname = new Literal name
+    func  = new Code [], Block.wrap [@body]
+    args  = []
+    o.classScope = func.makeScope o.scope
 
     @hoistDirectivePrologue()
     @setContext name
@@ -1096,21 +1119,17 @@ exports.Class = class Class extends Base
     @ensureConstructor name
     @addBoundFunctions o
     @body.spaced = yes
-    @body.expressions.unshift @ctor unless @ctor instanceof Code
     @body.expressions.push lname
 
-    call  = Closure.wrap @body
-
-    if @parent and call.args
-      @superClass = new Literal o.scope.freeVariable 'super', no
-      @body.expressions.unshift new Extends lname, @superClass
-      call.args.push @parent
-      params = call.variable.params or call.variable.base.params
-      params.push new Param @superClass
+    if @parent
+      superClass = new Literal o.classScope.freeVariable 'super', no
+      @body.expressions.unshift new Extends lname, superClass
+      func.params.push new Param superClass
+      args.push @parent
 
     @body.expressions.unshift @directives...
 
-    klass = new Parens call, yes
+    klass = new Parens new Call func, args
     klass = new Assign @variable, klass if @variable
     klass.compileToFragments o
 
@@ -1158,8 +1177,8 @@ exports.Assign = class Assign extends Base
         else
           o.scope.find name
     if @value instanceof Code and match = METHOD_DEF.exec name
-      @value.klass = match[1] if match[1]
-      @value.name  = match[2] ? match[3] ? match[4] ? match[5]
+      @value.klass = match[1] if match[2]
+      @value.name  = match[3] ? match[4] ? match[5]
     val = @value.compileToFragments o, LEVEL_LIST
     return (compiledName.concat @makeCode(": "), val) if @context is 'object'
     answer = compiledName.concat @makeCode(" #{ @context or '=' } "), val
@@ -1268,9 +1287,9 @@ exports.Assign = class Assign extends Base
     else
       fromDecl = fromRef = '0'
     if to
-      if from and from instanceof Value and from?.isSimpleNumber() and
-                    to instanceof Value and to.isSimpleNumber()
-        to = +to.compile(o) - +fromRef
+      if from instanceof Value and from.isSimpleNumber() and
+         to instanceof Value and to.isSimpleNumber()
+        to = to.compile(o) - fromRef
         to += 1 unless exclusive
       else
         to = to.compile(o, LEVEL_ACCESS) + ' - ' + fromRef
@@ -1291,13 +1310,14 @@ exports.Code = class Code extends Base
     @params  = params or []
     @body    = body or new Block
     @bound   = tag is 'boundfunc'
-    @context = '_this' if @bound
 
   children: ['params', 'body']
 
   isStatement: -> !!@ctor
 
   jumps: NO
+
+  makeScope: (parentScope) -> new Scope parentScope, @body, this
 
   # Compilation creates a new scope unless explicitly asked to share with the
   # outer scope. Handles splat parameters in the parameter list by peeking at
@@ -1306,15 +1326,18 @@ exports.Code = class Code extends Base
   # a closure.
   compileNode: (o) ->
 
+    if @bound and o.scope.method?.bound
+      @context = o.scope.method.context
+
     # Handle bound functions early.
-    if @bound and not @wrapped and not @static
-      @wrapped = yes
-      wrapper = new Code [new Param new Literal '_this'], new Block [this]
+    if @bound and not @context
+      @context = '_this'
+      wrapper = new Code [new Param new Literal @context], new Block [this]
       boundfunc = new Call(wrapper, [new Literal 'this'])
       boundfunc.updateLocationDataIfMissing @locationData
       return boundfunc.compileNode(o)
 
-    o.scope         = new Scope o.scope, @body, this
+    o.scope         = del(o, 'classScope') or @makeScope o.scope
     o.scope.shared  = del(o, 'sharedScope')
     o.indent        += TAB
     delete o.bare
@@ -1353,9 +1376,6 @@ exports.Code = class Code extends Base
       node.error "multiple parameters named '#{name}'" if name in uniqs
       uniqs.push name
     @body.makeReturn() unless wasEmpty or @noReturn
-    if @bound and o.scope.parent.method?.bound
-      @bound = @context = o.scope.parent.method.context
-    idt   = o.indent
     code  = 'function'
     code  += ' ' + @name if @ctor
     code  += '('
@@ -1520,7 +1540,7 @@ exports.While = class While extends Base
     {expressions} = @body
     return no unless expressions.length
     for node in expressions
-      return node if node.jumps loop: yes
+      return jumpNode if jumpNode = node.jumps loop: yes
     no
 
   # The main difference from a JavaScript *while* is that the CoffeeScript
@@ -1949,7 +1969,7 @@ exports.For = class For extends While
     for expr, idx in body.expressions
       expr = expr.unwrapAll()
       continue unless expr instanceof Call
-      val = expr.variable.unwrapAll()
+      val = expr.variable?.unwrapAll()
       continue unless (val instanceof Code) or
                       (val instanceof Value and
                       val.base?.unwrapAll() instanceof Code and
@@ -1976,7 +1996,7 @@ exports.Switch = class Switch extends Base
 
   jumps: (o = {block: yes}) ->
     for [conds, block] in @cases
-      return block if block.jumps o
+      return jumpNode if jumpNode = block.jumps o
     @otherwise?.jumps o
 
   makeReturn: (res) ->
@@ -2088,50 +2108,6 @@ exports.If = class If extends Base
   unfoldSoak: ->
     @soak and this
 
-# Faux-Nodes
-# ----------
-# Faux-nodes are never created by the grammar, but are used during code
-# generation to generate other combinations of nodes.
-
-#### Closure
-
-# A faux-node used to wrap an expressions body in a closure.
-Closure =
-
-  # Wrap the expressions body, unless it contains a pure statement,
-  # in which case, no dice. If the body mentions `this` or `arguments`,
-  # then make sure that the closure wrapper preserves the original values.
-  wrap: (expressions, statement, noReturn) ->
-    return expressions if expressions.jumps()
-    func = new Code [], Block.wrap [expressions]
-    args = []
-    argumentsNode = expressions.contains @isLiteralArguments
-    if argumentsNode and expressions.classBody
-      argumentsNode.error "Class bodies shouldn't reference arguments"
-    if argumentsNode or expressions.contains @isLiteralThis
-      meth = new Literal if argumentsNode then 'apply' else 'call'
-      args = [new Literal 'this']
-      args.push new Literal 'arguments' if argumentsNode
-      func = new Value func, [new Access meth]
-    func.noReturn = noReturn
-    call = new Call func, args
-    if statement then Block.wrap [call] else call
-
-  isLiteralArguments: (node) ->
-    node instanceof Literal and node.value is 'arguments' and not node.asKey
-
-  isLiteralThis: (node) ->
-    (node instanceof Literal and node.value is 'this' and not node.asKey) or
-      (node instanceof Code and node.bound) or
-      (node instanceof Call and node.isSuper)
-
-# Unfold a node's child if soak, then tuck the node under created `If`
-unfoldSoak = (o, parent, name) ->
-  return unless ifn = parent[name].unfoldSoak o
-  parent[name] = ifn.body
-  ifn.body = new Value parent
-  ifn
-
 # Constants
 # ---------
 
@@ -2178,28 +2154,21 @@ NUMBER    = ///^[+-]?(?:
   \d*\.?\d+ (?:e[+-]?\d+)?  # decimal
 )$///i
 
-METHOD_DEF = ///
-  ^
-    (?:
-      (#{IDENTIFIER_STR})
-      \.prototype
-      (?:
-        \.(#{IDENTIFIER_STR})
-      | \[("(?:[^\\"\r\n]|\\.)*"|'(?:[^\\'\r\n]|\\.)*')\]
-      | \[(0x[\da-fA-F]+ | \d*\.?\d+ (?:[eE][+-]?\d+)?)\]
-      )
-    )
-  |
-    (#{IDENTIFIER_STR})
-  $
-///
+METHOD_DEF = /// ^
+  (#{IDENTIFIER_STR})
+  (\.prototype)?
+  (?: \.(#{IDENTIFIER_STR})
+    | \[("(?:[^\\"\r\n]|\\.)*"|'(?:[^\\'\r\n]|\\.)*')\]
+    | \[(0x[\da-fA-F]+ | \d*\.?\d+ (?:[eE][+-]?\d+)?)\]
+  )
+$ ///
 
 # Is a literal value a string/regex?
 IS_STRING = /^['"]/
 IS_REGEX = /^\//
 
-# Utility Functions
-# -----------------
+# Helper Functions
+# ----------------
 
 # Helper for ensuring that utility functions are assigned at the top level.
 utility = (name) ->
@@ -2220,6 +2189,21 @@ parseNum = (x) ->
     parseInt x, 16
   else
     parseFloat x
+
+isLiteralArguments = (node) ->
+  node instanceof Literal and node.value is 'arguments' and not node.asKey
+
+isLiteralThis = (node) ->
+  (node instanceof Literal and node.value is 'this' and not node.asKey) or
+    (node instanceof Code and node.bound) or
+    (node instanceof Call and node.isSuper)
+
+# Unfold a node's child if soak, then tuck the node under created `If`
+unfoldSoak = (o, parent, name) ->
+  return unless ifn = parent[name].unfoldSoak o
+  parent[name] = ifn.body
+  ifn.body = new Value parent
+  ifn
 
 # Compatibility method (IE < 10)
 createObject = Object.create
