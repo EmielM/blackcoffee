@@ -2117,7 +2117,7 @@ exports.If = class If extends Base
 # Constants
 # ---------
 
-UTILITIES =
+exports.UTILITIES = UTILITIES =
 
   # Correctly set up a prototype chain for inheritance, including a reference
   # to the superclass for `super()` calls, and copies of any static properties.
@@ -2177,7 +2177,7 @@ IS_REGEX = /^\//
 # ----------------
 
 # Helper for ensuring that utility functions are assigned at the top level.
-utility = (name) ->
+exports.utility = utility = (name) ->
   ref = "__#{name}"
   Scope.root.assign ref, UTILITIES[name]()
   ref
@@ -2231,7 +2231,7 @@ cloneNode = (src) ->
   ret[key] = cloneNode(val) for own key,val of src
   ret
 
-# Recursively calls `visit` for every child of `node`. When `visit` returns 
+# Recursively calls `visit` for every child of `node`. When `visit` returns
 # `false`, the node is removed from the tree (or replaced by `undefined` if
 # that is not possible). When a node is returned, it is used to replace the
 # original node, and `visit` is called again for the replacing node.
