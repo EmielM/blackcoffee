@@ -153,8 +153,10 @@ exports.Base = class Base
     changeNode = (n) ->
       if tmp = replacements[n.base?.value]
         n.base = cloneNode(tmp)
-      else if (tmp = replacements[n.name?.value]) and tmp.base?.value
-        n.name.value = tmp.base.value
+      else if (tmp = replacements[n.name?.value])
+        if not (tmp = tmp.base?.value)
+          n.error 'substitution is not an identifier'
+        n.name.value = tmp
       return
     ast = cloneNode @
     changeNode ast # walk doesn't fire a callback for the top level

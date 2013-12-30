@@ -72,6 +72,14 @@ test "subst of parameters", ->
   func = substXY (x) -> x + y
   eq 6, func(3)
 
+test "subst of loop index", ->
+  macro ->
+    node = macro.codeToNode ->
+      for a in [123...124]
+        eq 123, 123
+    node.subst a: macro.csToNode 'b'
+  eq 124, b
+
 test "macro contexts", ->
   macro -> @a = 42
   eq 42, macro -> macro.valToNode @a

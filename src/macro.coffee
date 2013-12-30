@@ -42,7 +42,7 @@ exports.expand = (ast, csToNodes) ->
     # if the node is a plain identifier, return it as a string:
     nodeToId: (node) -> node.base.value if node.base instanceof nodeTypes.Literal and node.isAssignable() and !node.properties?.length
     # parse `code` as coffeescript (`filename` is for error reporting):
-    csToNode: (code,filename) -> csToNodes code, {filename}
+    csToNode: (code,filename) -> csToNodes(code, {filename}).unwrap()
     # create a node that includes `code` as a javascript literal
     jsToNode: (code) -> new nodeTypes.Literal code || "void 0"
     # convert `expr` to a node (only works for jsonable expressions):
