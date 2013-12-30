@@ -1,9 +1,9 @@
 {
-  "name":         "coffee-script",
-  "description":  "Unfancy JavaScript",
-  "keywords":     ["javascript", "language", "coffeescript", "compiler"],
-  "author":       "Jeremy Ashkenas",
-  "version":      "1.6.3",
+  "name":         "blackcoffee",
+  "description":  "CoffeeScript + hygienic macros",
+  "keywords":     ["coffeescript", "macro"],
+  "author":       "Frank van Viegen",
+  "version":      "0.1.1",
   "license":      "MIT",
   "engines":      {
     "node":       ">=0.8.0"
@@ -14,16 +14,17 @@
   "main" : "./lib/coffee-script/coffee-script",
   "bin":          {
     "coffee":     "./bin/coffee",
+    "coffee":     "./bin/blackcoffee",
     "cake":       "./bin/cake"
   },
   "scripts": {
     "test": "node ./bin/cake test"
   },
-  "homepage":     "http://coffeescript.org",
-  "bugs":         "https://github.com/jashkenas/coffee-script/issues",
+  "homepage":     "https://github.com/paiq/blackcoffee",
+  "bugs":         "https://github.com/paiq/blackcoffee/issues",
   "repository":   {
     "type": "git",
-    "url": "git://github.com/jashkenas/coffee-script.git"
+    "url": "https://github.com/paiq/blackcoffee.git"
   },
   "devDependencies": {
     "uglify-js":  "~2.2",

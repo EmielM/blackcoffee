@@ -21,21 +21,31 @@ Applications include:
 - and whatever else you can think of doing at compile-time.
 
 
-Usage
-=====
+Installation and usage
+======================
 
-Clone the repository:
+You can obtain BlackCoffee through npm:
+```sh
+npm install blackcoffee
+```
+
+..or clone the repository:
 ```sh
 git clone https://github.com/paiq/blackcoffee
 ```
 
-```sh
-blackcoffee/bin/coffee
-```
-It can be used in the exact same way as the regular CoffeeScript compiler (except that macros are supported, of course). In addition, BlackCoffee comes with its own very simple CLI named `blackcoffee`, which supports multiple source files and command line flags that can be used by macros. Read the 'blackcoffee cli' section for more info.
+In both cases you'll have a local installation, assuming you don't want to replace your regular CoffeeScript compiler. You'll find the main compiler executable here `blackcoffee/bin/coffee` or here `node\_modules/blackcoffee/bin/coffee`.
 
-To install blackcoffee, *replacing your locally installed CoffeeScript*:
+The compiler can be used in the exact same way as the regular CoffeeScript compiler (except that macros are supported, of course). In addition, BlackCoffee comes with its own very simple CLI named `blackcoffee`, which supports multiple source files and command line flags that can be used by macros. Read the 'blackcoffee cli' section for more info.
+
+To install blackcoffee system-wide, *replacing any already installed CoffeeScript version*:
 ```sh
+sudo npm install -g blackcoffee
+```
+
+...or:
+```sh
+git clone https://github.com/paiq/blackcoffee
 cd blackcoffee
 sudo bin/cake install
 ```
