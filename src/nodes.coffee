@@ -151,12 +151,11 @@ exports.Base = class Base
   # This method is not used by CoffeeScript itself, but can be used by macros.
   subst: (replacements) ->
     changeNode = (n) ->
-      if tmp = replacements[n.base?.value]
-        n.base = cloneNode(tmp)
-      else if (tmp = replacements[n.name?.value])
-        if not (tmp = tmp.base?.value)
+      if (value = n.base?.value) and replacements.hasOwnProperty(value)
+        n.base = cloneNode replacements[value]
+      else if (value = n.name?.value) and replacements.hasOwnProperty(value)
+        if not (n.name.value = replacements[value].base?.value)
           n.error 'substitution is not an identifier'
-        n.name.value = tmp
       return
     ast = cloneNode @
     changeNode ast # walk doesn't fire a callback for the top level

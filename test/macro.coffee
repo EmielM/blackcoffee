@@ -100,6 +100,12 @@ test "macro macro.codeToNode", ->
   toLongBody(3+5,4)
   eq test, 24
 
+test "macro hasOwnProperty safety", ->
+  toString = -> 746
+  eq 746, toString()
+
+test "macro subst hasOwnProperty safety", ->
+  eq "12", macro -> macro.csToNode('12.toString()').subst a: macro.csToNode 'b'
 
 if fs = require? 'fs'
   test "macro include", ->

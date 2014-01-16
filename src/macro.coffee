@@ -96,11 +96,11 @@ exports.expand = (ast, csToNodes) ->
   
   # And now we'll start the actual work.
   nodeTypes.walk ast, (n) ->
-    if (name = getCalleeName(n)) and (func = utils._macros[name])
+    if (name = getCalleeName(n)) and utils._macros.hasOwnProperty(name)
       # execute a macro function.
       ld = n.locationData
       utils.file = ld && helpers.filenames[ld.file_num]
       utils.line = ld && 1+ld.first_line
-      res = callFunc func, context, n.args, ld
+      res = callFunc utils._macros[name], context, n.args, ld
       return (if res instanceof nodeTypes.Base then res else false) # delete if not a node
 
