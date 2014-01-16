@@ -86,6 +86,7 @@ map.  Also, `options.generatedFile` may be passed to "file".
       generate: (options = {}) ->
         writingline       = 0
         lastColumn        = 0
+        lastSourceIndex   = 0
         lastSourceLine    = 0
         lastSourceColumn  = 0
         needComma         = no
@@ -116,7 +117,8 @@ column for the current line:
 
 The index into the list of sources:
 
-            buffer += @encodeVlq loc.file_num||0
+            buffer += @encodeVlq loc.file_num - lastSourceIndex
+            lastSourceIndex = loc.file_num
 
 The starting line in the original source, relative to the previous source line.
 
