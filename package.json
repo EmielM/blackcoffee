@@ -3,7 +3,7 @@
   "description":  "CoffeeScript + hygienic macros",
   "keywords":     ["coffeescript", "macro"],
   "author":       "Frank van Viegen",
-  "version":      "0.1.2",
+  "version":      "0.1.3",
   "license":      "MIT",
   "engines":      {
     "node":       ">=0.8.0"
@@ -14,7 +14,7 @@
   "main" : "./lib/coffee-script/coffee-script",
   "bin":          {
     "coffee":     "./bin/coffee",
-    "coffee":     "./bin/blackcoffee",
+    "blackcoffee":"./bin/blackcoffee",
     "cake":       "./bin/cake"
   },
   "scripts": {
