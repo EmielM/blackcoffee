@@ -61,6 +61,7 @@ exports.nodes = (source, options={}) ->
   nodes = parser.parse source
 
   # Set the `fileNum` on each of the ast nodes.
+  nodes.locationData?.file_num = fileNum
   parser.yy.walk nodes, (n) ->
     n.locationData.file_num = fileNum if n.locationData
     return

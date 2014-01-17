@@ -64,3 +64,18 @@ test "Verify all tokens get a location", ->
     tokens = CoffeeScript.tokens testScript
     for token in tokens
         ok !!token[2]
+
+if require?
+  test "Verify setting of nodes' file number", ->
+    {walk: walkNodes} = require '../src/nodes'
+    eqNodesFileNum = (nodes, fileNum) ->
+      eq nodes.locationData.file_num, fileNum
+      walkNodes nodes, (n) ->
+        eq n.locationData.file_num, fileNum
+        return
+
+    # Get value from *cached* 'helpers' module.
+    firstFileNum = require('../lib/coffee-script/helpers').scripts.length
+
+    eqNodesFileNum CoffeeScript.nodes('a = 1'), firstFileNum
+    eqNodesFileNum CoffeeScript.nodes('a = 2'), firstFileNum + 1
