@@ -166,7 +166,7 @@ syntaxErrorToString = ->
   start    = first_column
   # Show only the first line on multi-line errors.
   end      = if first_line is last_line then last_column + 1 else codeLine.length
-  marker   = codeLine.substr(0,start).replace(/[^\t]/g,' ') + codeLine.substring(start,end).replace(/[^\t]/g,'^')
+  marker   = codeLine.substr(0,start).replace(/[^\t]/g,' ') + (codeLine+" ").substring(start,end).replace(/[^\t]/g,'^')
 
   # Check to see if we're running on a color-enabled TTY.
   if process?
@@ -182,3 +182,11 @@ syntaxErrorToString = ->
     #{codeLine}
     #{marker}
   """
+
+exports.nameWhitespaceCharacter = (string) ->
+  switch string
+    when ' ' then 'space'
+    when '\n' then 'newline'
+    when '\r' then 'carriage return'
+    when '\t' then 'tab'
+    else string

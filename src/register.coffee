@@ -14,10 +14,8 @@ if require.extensions
   for ext in CoffeeScript.FILE_EXTENSIONS
     require.extensions[ext] = loadFile
 
-  # Patch Node's module loader to be able to handle mult-dot extensions.
-  # This is a horrible thing that should not be required. Perhaps, one day,
-  # when a truly benevolent dictator comes to rule over the Republik of Node,
-  # it won't be.
+  # Patch Node's module loader to be able to handle multi-dot extensions.
+  # This is a horrible thing that should not be required.
   Module = require 'module'
 
   findExtension = (filename) ->
@@ -42,10 +40,11 @@ if require.extensions
 if child_process
   {fork} = child_process
   binary = require.resolve '../../bin/coffee'
-  child_process.fork = (path, args = [], options = {}) ->
-    execPath = if helpers.isCoffee(path) then binary else null
-    if not Array.isArray args
-      args = []
-      options = args or {}
-    options.execPath or= execPath
+  child_process.fork = (path, args, options) ->
+    if helpers.isCoffee path
+      unless Array.isArray args
+        options = args or {}
+        args = []
+      args = [path].concat args
+      path = binary
     fork path, args, options
