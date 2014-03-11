@@ -20,6 +20,8 @@ Applications include:
 - syntactic sugar,
 - and whatever else you can think of doing at compile-time.
 
+Besides macros, BlackCoffee sneaks one additional feature in CoffeeScript: Coco-like `!->` and `!=>` procedures. Prefixing an exclamation mark to the function operator, causes the function not to do an implicit return of the last expression.
+
 
 Installation and usage
 ======================
