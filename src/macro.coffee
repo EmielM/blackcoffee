@@ -56,6 +56,7 @@ exports.expand = (ast, csToNodes) ->
       else
         @csToNode code, filename
     _codeNodes: []
+    keep: {} # return macro.keep from a macro to prevent replacement
   # Copy all node classes, so macros can do things like `new @Literal(2)`.
   utils[k] = v for k,v of nodeTypes
 
@@ -102,5 +103,5 @@ exports.expand = (ast, csToNodes) ->
       utils.file = ld && helpers.filenames[ld.file_num]
       utils.line = ld && 1+ld.first_line
       res = callFunc utils._macros[name], context, n.args, ld
-      if res==true or res instanceof nodeTypes.Base then res else false # delete if not a node
+      if res==utils.keep then true else if res instanceof nodeTypes.Base then res else false # delete if not a node
 

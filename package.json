@@ -2,7 +2,7 @@
   "name": "blackcoffee",
   "description": "CoffeeScript + hygienic macros",
   "author": "Frank van Viegen",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "license": "MIT",
   "keywords": [
     "javascript",
