@@ -142,7 +142,7 @@ task 'build:parser', 'rebuild the Jison parser (run build first)', ->
 
 task 'build:browser', 'rebuild the merged script for inclusion in the browser', ->
   code = ''
-  for name in ['helpers', 'rewriter', 'lexer', 'parser', 'scope', 'nodes', 'sourcemap', 'coffee-script', 'browser']
+  for name in ['helpers', 'rewriter', 'lexer', 'parser', 'scope', 'nodes', 'sourcemap', 'macro', 'coffee-script', 'browser']
     code += """
       require['./#{name}'] = (function() {
         var exports = {}, module = {exports: exports};
@@ -243,8 +243,8 @@ runTests = (CoffeeScript) ->
       failures.push
         filename: currentFile
         error: e
-        description: description if description?
-        source: fn.toString() if fn.toString?
+        description: description
+        source: fn.toString?()
 
   # See http://wiki.ecmascript.org/doku.php?id=harmony:egal
   egal = (a, b) ->
@@ -271,12 +271,12 @@ runTests = (CoffeeScript) ->
     message = "passed #{passedTests} tests in #{time} seconds#{reset}"
     return log(message, green) unless failures.length
     log "failed #{failures.length} and #{message}", red
-    for fail in failures
-      {error, filename, description, source}  = fail
+
+    for {description,error,filename,source} in failures
       console.log ''
-      log "  #{description}", red if description
-      log "  #{error.stack}", red
-      console.log "  #{source}" if source
+      log filename+(if description then ' -  '+description else  ''), red
+      console.log "  "+error.stack if error.stack
+      console.log "  "+source if source
     return
 
   # Run every test in the `test` folder, recording failures.
@@ -286,9 +286,11 @@ runTests = (CoffeeScript) ->
     currentFile = filename = path.join 'test', file
     code = fs.readFileSync filename
     try
-      CoffeeScript.run code.toString(), {filename, literate}
+      CoffeeScript.run code.toString(), {filename, literate,}
     catch error
-      failures.push {filename, error}
+      failures.push
+        filename: filename
+        error: error
   return !failures.length
 
 

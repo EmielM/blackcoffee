@@ -114,4 +114,21 @@ if fs = require? 'fs'
     eq 2, includedFunc()
     eq 3, includedVal
     eq 4, (macro -> macro.valToNode @includedMeta)
- 
+
+test "macro code block insert", ->
+	eq 12*13*14, macro ->
+		macro.codeToNode ->
+			x = 11
+			code
+			x  * y * z
+		.subst
+			code: macro.csToNode "x++\ny = 13\nz = 14"
+
+test "macro subst with reserved names as properties", ->
+	y = void: {case: 7}
+	eq 7, macro ->
+		macro.codeToNode ->
+			x.case
+		.subst
+			x: macro.csToNode "y.void"
+	

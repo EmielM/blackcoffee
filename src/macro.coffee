@@ -102,5 +102,5 @@ exports.expand = (ast, csToNodes) ->
       utils.file = ld && helpers.filenames[ld.file_num]
       utils.line = ld && 1+ld.first_line
       res = callFunc utils._macros[name], context, n.args, ld
-      return (if res instanceof nodeTypes.Base then res else false) # delete if not a node
+      if res==true or res instanceof nodeTypes.Base then res else false # delete if not a node
 

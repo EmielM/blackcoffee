@@ -2295,7 +2295,7 @@ if typeof createObject != 'function'
   createObject = (proto) ->
     f = ->
     f.prototype = proto
-    f
+    new f
 
 # Deep copy a (part of the) AST. Actually, this is just a pretty generic
 # ECMAScript 3 expression cloner. (Browser special cases are not supported.)
@@ -2303,8 +2303,14 @@ cloneNode = (src) ->
   return src if typeof src != 'object' || src==null
   return (cloneNode(x) for x in src) if src instanceof Array
 
-  # It's an object, find the prototype and construct an object with it.
-  ret = createObject (Object.getPrototypeOf?(src) || src.__proto__  || src.constructor.prototype)
+  srcV = src.valueOf()
+  if srcV != src
+    # It's a standard object wrapper for a native type, like String.
+    ret = src.constructor srcV
+  else
+    # It's an object, find the prototype and construct an object with it.
+    ret = createObject (Object.getPrototypeOf?(src) || src.__proto__  || src.constructor.prototype)
+
   # And finish by deep copying all own properties.
   ret[key] = cloneNode(val) for own key,val of src
   ret
@@ -2323,7 +2329,7 @@ exports.walk = walk = (node, visit) ->
         child = node[name] = res
       if res==false # delete (but some node is required)
         node[name] = new exports.Undefined()
-        # else keep
+      # else keep
   node
 
 # Helper method for `walk`.
