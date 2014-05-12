@@ -131,4 +131,8 @@ test "macro subst with reserved names as properties", ->
 			x.case
 		.subst
 			x: macro.csToNode "y.void"
-	
+
+test "macro subst should not substitute property access", !->
+	a = {b: 2, c: 3}
+	eq 2, macro -> (macro.codeToNode -> a.b).subst b: macro.csToNode 'c'
+

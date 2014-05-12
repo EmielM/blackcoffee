@@ -153,7 +153,7 @@ exports.Base = class Base
     changeNode = (n) ->
       if (value = n.base?.value) and replacements.hasOwnProperty(value)
         n.base = cloneNode replacements[value]
-      else if (value = n.name?.value) and replacements.hasOwnProperty(value)
+      else if (value = n.name?.value) and replacements.hasOwnProperty(value) and n not instanceof Access
         if not (n.name.value = replacements[value].base?.value)
           n.error 'substitution is not an identifier'
       return
