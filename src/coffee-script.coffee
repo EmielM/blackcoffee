@@ -13,7 +13,7 @@ SourceMap     = require './sourcemap'
 Macro         = require './macro'
 
 # The current CoffeeScript version number.
-exports.VERSION = '1.7.1'
+exports.VERSION = '1.8.0'
 
 exports.FILE_EXTENSIONS = ['.coffee', '.litcoffee', '.coffee.md']
 

@@ -87,7 +87,6 @@
         <a href="documentation/docs/sourcemap.html">Source Maps &mdash; src/sourcemap</a>
       </div>
     </div>
-    <div id="error" style="display:none;"></div>
   </div>
 
   <div class="container">
@@ -111,11 +110,10 @@
 
     <p>
       <b>Latest Version:</b>
-      <a href="http://github.com/jashkenas/coffee-script/tarball/1.7.1">1.7.1</a>
+      <a href="http://github.com/jashkenas/coffeescript/tarball/1.8.0">1.8.0</a>
     </p>
 
-    <pre>
-sudo npm install -g coffee-script</pre>
+    <pre>npm install -g coffee-script</pre>
 
     <h2>
       <span id="overview" class="bookmark"></span>
@@ -161,14 +159,14 @@ npm install --save coffee-script</pre>
     <p>
       If you'd prefer to install the latest <b>master</b> version of CoffeeScript, you
       can clone the CoffeeScript
-      <a href="http://github.com/jashkenas/coffee-script">source repository</a>
+      <a href="http://github.com/jashkenas/coffeescript">source repository</a>
       from GitHub, or download
-      <a href="http://github.com/jashkenas/coffee-script/tarball/master">the source</a> directly.
-      To install the lastest master CoffeeScript compiler with npm:
+      <a href="http://github.com/jashkenas/coffeescript/tarball/master">the source</a> directly.
+      To install the latest master CoffeeScript compiler with npm:
     </p>
 
 <pre>
-npm install -g jashkenas/coffee-script</pre>
+npm install -g jashkenas/coffeescript</pre>
 
     <p>
       Or, if you want to install to <tt>/usr/local</tt>, and don't want to use
@@ -354,7 +352,7 @@ Expressions
       Just for kicks, a little bit of the compiler is currently implemented in this fashion:
       See it
       <a href="https://gist.github.com/jashkenas/3fc3c1a8b1009c00d9df">as a document</a>,
-      <a href="https://raw.github.com/jashkenas/coffee-script/master/src/scope.litcoffee">raw</a>,
+      <a href="https://raw.github.com/jashkenas/coffeescript/master/src/scope.litcoffee">raw</a>,
       and <a href="http://cl.ly/LxEu">properly highlighted in a text editor</a>.
     </p>
 
@@ -778,7 +776,7 @@ Expressions
       Destructuring assignment can be used with any depth of array and object nesting,
       to help pull out deeply nested properties.
     </p>
-    <%= codeFor('object_extraction', '"name + "-" + street"') %>
+    <%= codeFor('object_extraction', 'name + "-" + street') %>
     <p>
       Destructuring assignment can even be combined with splats.
     </p>
@@ -786,7 +784,7 @@ Expressions
     <p>
       Expansion can be used to retrieve elements from the end of an array without having to assign the rest of its values. It works in function parameter lists as well.
     </p>
-    <%= codeFor('expansion', '"first + " " + last"') %>
+    <%= codeFor('expansion', 'first + " " + last') %>
     <p>
       Destructuring assignment is also useful when combined with class constructors
       to assign properties to your instance from an options object passed to the constructor.
@@ -1035,7 +1033,7 @@ Expressions
         size (Rails, Node).
       </li>
       <li>
-        <a href="http://ristrettolo.gy">CoffeeScript Ristretto</a>
+        <a href="https://leanpub.com/coffeescript-ristretto/read">CoffeeScript Ristretto</a>
         is a deep dive into CoffeeScript's semantics from simple functions up through
         closures, higher-order functions, objects, classes, combinators, and decorators.
         By <a href="http://braythwayt.com/">Reg Braithwaite</a>.
@@ -1047,13 +1045,17 @@ Expressions
       </li>
       <li>
         <a href="http://www.packtpub.com/coffeescript-application-development/book">CoffeeScript Application Development</a>
-        is a new book from Packt Publishing that introduces CoffeeScript while
+        from Packt, introduces CoffeeScript while
         walking through the process of building a demonstration web application.
       </li>
       <li>
         <a href="http://www.manning.com/lee/">CoffeeScript in Action</a>
-        is a new book from Manning Publications that covers CoffeeScript syntax, composition techniques
+        from Manning Publications, covers CoffeeScript syntax, composition techniques
         and application development.
+      </li>
+      <li>
+        <a href="http://www.dpunkt.de/buecher/4021/coffeescript.html">CoffeeScript: Die Alternative zu JavaScript</a>
+        from dpunkt.verlag, is the first CoffeeScript book in Deutsch.
       </li>
     </ul>
 
@@ -1085,7 +1087,7 @@ Expressions
     </h2>
 
     <p>
-      The <a href="https://github.com/languages/coffeescript">best list of
+      The <a href="https://github.com/trending?l=coffeescript&amp;since=monthly">best list of
       open-source CoffeeScript examples</a> can be found on GitHub. But just
       to throw out few more:
     </p>
@@ -1117,8 +1119,8 @@ Expressions
         the Bolo tank game for modern browsers.
       </li>
       <li>
-        <b>josh</b>'s <a href="http://josh.github.com/nack/">nack</a>, a Node.js-powered
-        <a href="http://rack.rubyforge.org/">Rack</a> server.
+        <b>github</b>'s <a href="https://atom.io/">Atom</a>,
+        a hackable text editor built on web technologies.
       </li>
     </ul>
 
@@ -1128,7 +1130,7 @@ Expressions
 
     <ul>
       <li>
-        <a href="http://github.com/jashkenas/coffee-script/">Source Code</a><br />
+        <a href="http://github.com/jashkenas/coffeescript/">Source Code</a><br />
         Use <tt>bin/coffee</tt> to test your changes,<br />
         <tt>bin/cake test</tt> to run the test suite,<br />
         <tt>bin/cake build</tt> to rebuild the CoffeeScript compiler, and <br />
@@ -1141,7 +1143,7 @@ Expressions
         they pass, there's a good chance you've made a successful change.
       </li>
       <li>
-        <a href="http://github.com/jashkenas/coffee-script/issues">CoffeeScript Issues</a><br />
+        <a href="http://github.com/jashkenas/coffeescript/issues">CoffeeScript Issues</a><br />
         Bug reports, feature proposals, and ideas for changes to the language belong here.
       </li>
       <li>
@@ -1149,15 +1151,15 @@ Expressions
         If you'd like to ask a question, the mailing list is a good place to get help.
       </li>
       <li>
-        <a href="http://github.com/jashkenas/coffee-script/wiki">The CoffeeScript Wiki</a><br />
+        <a href="http://github.com/jashkenas/coffeescript/wiki">The CoffeeScript Wiki</a><br />
         If you've ever learned a neat CoffeeScript tip or trick, or ran into a gotcha &mdash; share it on the wiki.
         The wiki also serves as a directory of handy
-        <a href="http://github.com/jashkenas/coffee-script/wiki/Text-editor-plugins">text editor extensions</a>,
-        <a href="http://github.com/jashkenas/coffee-script/wiki/Web-framework-plugins">web framework plugins</a>,
-        and general <a href="http://github.com/jashkenas/coffee-script/wiki/Build-tools">CoffeeScript build tools</a>.
+        <a href="http://github.com/jashkenas/coffeescript/wiki/Text-editor-plugins">text editor extensions</a>,
+        <a href="http://github.com/jashkenas/coffeescript/wiki/Web-framework-plugins">web framework plugins</a>,
+        and general <a href="http://github.com/jashkenas/coffeescript/wiki/Build-tools">CoffeeScript build tools</a>.
       </li>
       <li>
-        <a href="http://github.com/jashkenas/coffee-script/wiki/FAQ">The FAQ</a><br />
+        <a href="http://github.com/jashkenas/coffeescript/wiki/FAQ">The FAQ</a><br />
         Perhaps your CoffeeScript-related question has been asked before. Check the FAQ first.
       </li>
       <li>
@@ -1168,7 +1170,7 @@ Expressions
         point for converting simple scripts.
       </li>
       <li>
-        <a href="https://github.com/jashkenas/coffee-script/downloads">High-Rez Logo</a><br />
+        <a href="https://github.com/jashkenas/coffeescript/downloads">High-Rez Logo</a><br />
         The CoffeeScript logo is available in Illustrator, EPS and PSD formats, for use
         in presentations.
       </li>
@@ -1193,6 +1195,45 @@ Expressions
       <span id="changelog" class="bookmark"></span>
       Change Log
     </h2>
+
+    <p>
+      <%= releaseHeader('2014-08-26', '1.8.0', '1.7.1') %>
+      <ul>
+        <li>
+          The <tt>--join</tt> option of the CLI is now deprecated.
+        </li>
+        <li>
+          Source maps now use <tt>.js.map</tt> as file extension, instead of just <tt>.map</tt>.
+        </li>
+        <li>
+          The CLI now exits with the exit code 1 when it fails to write a file to disk.
+        </li>
+        <li>
+          The compiler no longer crashes on unterminated, single-quoted strings.
+        </li>
+        <li>
+          Fixed location data for string interpolations, which made source maps out of sync.
+        </li>
+        <li>
+          The error marker in error messages is now correctly positioned if the code is indented with tabs.
+        </li>
+        <li>
+          Fixed a slight formatting error in CoffeeScript’s source map-patched stack traces.
+        </li>
+        <li>
+          The <tt>%%</tt> operator now coerces its right operand only once.
+        </li>
+        <li>
+          It is now possible to require CoffeeScript files from Cakefiles without having to register the compiler first.
+        </li>
+        <li>
+          The CoffeeScript REPL is now exported and can be required using <tt>require 'coffee-script/repl'</tt>.
+        </li>
+        <li>
+          Fixes for the REPL in Node 0.11.
+        </li>
+      </ul>
+    </p>
 
     <p>
       <%= releaseHeader('2014-01-29', '1.7.1', '1.7.0') %>
@@ -1367,7 +1408,7 @@ Expressions
         <li>
           Due to the new semantics of JavaScript's strict mode, CoffeeScript no
           longer guarantees that constructor functions have names in all runtimes.
-          See <a href="https://github.com/jashkenas/coffee-script/issues/2052">#2052</a>
+          See <a href="https://github.com/jashkenas/coffeescript/issues/2052">#2052</a>
           for discussion.
         </li>
         <li>
@@ -1397,7 +1438,7 @@ Expressions
           a function definition, deleting naked variables, setting the value of
           <tt>eval</tt> or <tt>arguments</tt>, and more.
           See a full discussion at
-          <a href="https://github.com/jashkenas/coffee-script/issues/1547">#1547</a>.
+          <a href="https://github.com/jashkenas/coffeescript/issues/1547">#1547</a>.
         </li>
         <li>
           The REPL now has a handy new multi-line mode for entering large
@@ -1426,7 +1467,7 @@ Expressions
           effectively creating a shallow copy of the list.
         </li>
         <li>
-          Additional tweaks and improvments to <tt>coffee --watch</tt> under
+          Additional tweaks and improvements to <tt>coffee --watch</tt> under
           Node's "new" file watching API. Watch will now beep by default
           if you introduce a syntax error into a watched script. We also now
           ignore hidden directories by default when watching recursively.
@@ -1926,19 +1967,22 @@ Expressions
     # Set up the compilation function, to run when you stop typing.
     compileSource = ->
       source = $('#repl_source').val()
+      results = $('#repl_results')
       window.compiledJS = ''
       try
         window.compiledJS = CoffeeScript.compile source, bare: on
-        el = $('#repl_results')[0]
+        el = results[0]
         if el.innerText
           el.innerText = window.compiledJS
         else
-          $(el).text window.compiledJS
-        $('#error').hide()
+          results.text(window.compiledJS)
+        results.removeClass 'error'
+        $('.minibutton.run').removeClass 'error'
       catch {location, message}
         if location?
           message = "Error on line #{location.first_line + 1}: #{message}"
-        $('#error').text(message).show()
+        results.text(message).addClass 'error'
+        $('.minibutton.run').addClass 'error'
 
       # Update permalink
       $('#repl_permalink').attr 'href', "##{sourceFragment}#{encodeURIComponent source}"

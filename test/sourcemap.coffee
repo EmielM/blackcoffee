@@ -44,7 +44,7 @@ test "SourceMap tests", ->
   eq 1, x.first_line
   eq 9, x.first_column
 
-  # Look up a point futher along on the same line - should get back the same source position.
+  # Look up a point further along on the same line - should get back the same source position.
   x = map.sourceLocation 2, 10
   eq 1, x.first_line
   eq 9, x.first_column
