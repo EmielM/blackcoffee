@@ -23,6 +23,8 @@ while i<args.length
 	else if arg=='-m' # srcMap file
 		map = args[i]
 		args.splice i, 1
+	else if arg=='-b' # bare
+		bare = true
 	else if arg=='-f' # flag
 		flag = args[i].split '='
 		flags[flag[0]] = flag[1] ? true
@@ -40,7 +42,7 @@ for file in args
 
 ast = new Nodes.Block(asts)
 ast = Macro.expand(ast, Coffee.nodes)
-fragments = ast.compileToFragments()
+fragments = ast.compileToFragments {bare}
 js = (fragment.code for fragment in fragments).join('')
 js = "#!/usr/bin/env node\n"+js if executable
 
